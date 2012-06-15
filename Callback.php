@@ -26,15 +26,57 @@ use Backend\Interfaces\CallbackInterface;
  */
 class Callback implements CallbackInterface
 {
+
+    /**
+     * The class of the callback. Used for static method calls.
+     *
+     * @var string
+     */
+    protected $class;
+
+    /**
+     * The object of the callback.
+     *
+     * @var object.
+     */
+    protected $object;
+
+    /**
+     * The name of the method to execute. Used by both class and object.
+     *
+     * @var string
+     */
+    protected $method;
+
+    /**
+     * The function to use as a callback.
+     *
+     * @var callable
+     */
+    protected $function;
+
+    /**
+     * The arguments to be used as parameters for the callback
+     *
+     * @array
+     */
+    protected $arguments = array();
+
     /**
      * Set the class name for a static method call.
      *
-     * @param string $className the name of the class of the callback.
+     * @param string $class The name of the class of the callback.
      *
      * @return CallbackInterface The current callback.
      */
-    public function setClass($className)
+    public function setClass($class)
     {
+        if (!is_string($class)) {
+            throw new \Exception('Invalid type for class name, string expected, got ' . gettype($class));
+        }
+        $this->class = $class;
+        $this->function = null;
+        return $this;
     }
 
     /**
@@ -44,6 +86,7 @@ class Callback implements CallbackInterface
      */
     public function getClass()
     {
+        return $this->class;
     }
 
     /**
@@ -55,6 +98,12 @@ class Callback implements CallbackInterface
      */
     public function setObject($object)
     {
+        if (!is_object($object)) {
+            throw new \Exception('Invalid type for class name, object expected, got ' . gettype($className));
+        }
+        $this->object = $object;
+        $this->function = null;
+        return $this;
     }
 
     /**
@@ -64,17 +113,21 @@ class Callback implements CallbackInterface
      */
     public function getObject()
     {
+        return $this->object;
     }
 
     /**
      * Set the method name for a method call.
      *
-     * @param string $methodName The method name of the callback.
+     * @param string $method The method name of the callback.
      *
      * @return CallbackInterface The current callback.
      */
-    public function setMethodName($methodName)
+    public function setMethod($method)
     {
+        $this->method = $method;
+        $this->function = null;
+        return $this;
     }
 
     /**
@@ -82,8 +135,9 @@ class Callback implements CallbackInterface
      *
      * @return string
      */
-    public function getMethodName()
+    public function getMethod()
     {
+        return $this->method;
     }
 
     /**
@@ -95,6 +149,14 @@ class Callback implements CallbackInterface
      */
     public function setFunction($function)
     {
+        if (!is_callable($function)) {
+            throw new \Exception('Trying to set an uncallable function');
+        }
+        $this->function = $function;
+        $this->method = null;
+        $this->class = null;
+        $this->object = null;
+        return $this;
     }
 
     /**
@@ -104,6 +166,7 @@ class Callback implements CallbackInterface
      */
     public function getFunction()
     {
+        return $this->function;
     }
 
     /**
@@ -115,6 +178,8 @@ class Callback implements CallbackInterface
      */
     public function setArguments(array $arguments)
     {
+        $this->arguments = $arguments;
+        return $this;
     }
 
     /**
@@ -124,10 +189,13 @@ class Callback implements CallbackInterface
      */
     public function getArguments()
     {
+        return $this->arguments;
     }
 
     /**
      * Execute the callback.
+     *
+     * The precedence is class, object, function.
      *
      * @param array $arguments The arguments with which to execute the callback.
      *
@@ -135,6 +203,48 @@ class Callback implements CallbackInterface
      */
     public function execute(array $arguments = null)
     {
+        $arguments = $arguments ?: $this->arguments;
+        $arguments = array_values($arguments);
+        if ($this->method) {
+            if ($this->class) {
+                $callable = array($this->class, $this->method);
+            } else if ($this->object) {
+                switch (count($arguments)) {
+                case 1:
+                    return $this->object->{$this->method}($arguments[0]);
+                    break;
+                case 2:
+                    return $this->object->{$this->method}($arguments[0], $arguments[1]);
+                    break;
+                case 3:
+                    return $this->object->{$this->method}($arguments[0], $arguments[1], $arguments[2]);
+                    break;
+                default:
+                    $callable = array($this->object, $this->method);
+                    break;
+                }
+            }
+        } else if ($this->function) {
+            switch (count($arguments)) {
+            case 1:
+                return $this->function($arguments[0]);
+                break;
+            case 2:
+                return $this->function($arguments[0], $arguments[1]);
+                break;
+            case 3:
+                return $this->function($arguments[0], $arguments[1], $arguments[2]);
+                break;
+            default:
+                $callable = $this->function;
+                break;
+            }
+        }
+        if (empty($callable)) {
+            throw new \Exception('Call to an unexecutable Callback');
+        } else {
+            return call_user_func_array($callable, $arguments);
+        }
     }
 
     /**
@@ -146,6 +256,16 @@ class Callback implements CallbackInterface
      */
     public function __toString()
     {
+        if ($this->method) {
+            if ($this->class) {
+                return $this->class . '::' . $this->method;
+            } else if ($this->object) {
+                return get_class($object) . '::' . $this->method;
+            }
+        } else if ($this->function) {
+            return $this->function;
+        }
+        throw new \Exception('Cannot convert invalid callback to string');
     }
 
     /**
@@ -160,5 +280,17 @@ class Callback implements CallbackInterface
      */
     public static function fromString($string, $arguments = array())
     {
+        $arr = explode('::', $string);
+        $callback = new Callback();
+        if (count($arr) == 1) {
+            $callback->setFunction($arr[0]);
+        } else if (count($arr == 2)) {
+            $callback->setClass($arr[0]);
+            $callback->setMethod($arr[1]);
+        } else {
+            throw new \Exception('Invalid callback string: ' . $string);
+        }
+        $callback->setArguments($arguments);
+        return $callback;
     }
 }
