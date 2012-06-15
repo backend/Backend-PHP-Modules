@@ -76,6 +76,7 @@ class Callback implements CallbackInterface
         }
         $this->class = $class;
         $this->function = null;
+        $this->object = null;
         return $this;
     }
 
@@ -103,6 +104,7 @@ class Callback implements CallbackInterface
         }
         $this->object = $object;
         $this->function = null;
+        $this->class = null;
         return $this;
     }
 
@@ -207,8 +209,14 @@ class Callback implements CallbackInterface
         $arguments = array_values($arguments);
         if ($this->method) {
             if ($this->class) {
+                if (!is_callable(array($this->class, $this->method))) {
+                    throw new \Exception('Invalid Callback: ' . (string)$this);
+                }
                 $callable = array($this->class, $this->method);
             } else if ($this->object) {
+                if (!is_callable(array($this->object, $this->method))) {
+                    throw new \Exception('Invalid Callback: ' . (string)$this);
+                }
                 switch (count($arguments)) {
                 case 1:
                     return $this->object->{$this->method}($arguments[0]);
@@ -225,6 +233,9 @@ class Callback implements CallbackInterface
                 }
             }
         } else if ($this->function) {
+            if (!is_callable($this->function)) {
+                throw new \Exception('Invalid Callback: ' . (string)$this);
+            }
             switch (count($arguments)) {
             case 1:
                 return $this->function($arguments[0]);
