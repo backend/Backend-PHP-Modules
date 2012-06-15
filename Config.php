@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules;
+use \Backend\Interfaces\ConfigInterface;
 use Backend\Core\Exceptions\BackendException;
 /**
  * Class to handle application configs.
@@ -24,7 +25,7 @@ use Backend\Core\Exceptions\BackendException;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Config
+class Config implements ConfigInterface
 {
     /**
      * @var object Store for all the config values.
@@ -41,33 +42,44 @@ class Config
     /**
      * Construct the config class.
      *
-     * @param mixed $config
+     * @param mixed $config The configuration, either as an array of values
+     * or the name of the config file.
      *
      * @return null
-     * @todo Allow passing an array of filesnames to parse. This will let you parse
-     * default as well as environment
      */
     public function __construct($config)
     {
         switch (true) {
         case is_string($config):
-            $this->fromFile($config);
+            $this->_values = $this->fromFile($config);
             break;
         case is_array($config):
             $this->_values = $config;
             break;
         }
+        $this->rewind();
     }
 
+    /**
+     * Get the parser to parse a config file.
+     *
+     *  If none is set, it tries to use the pecl yaml parser, or the Symfony
+     *  Components YAML parser.
+     *
+     *  @return object
+     */
     public function getParser()
     {
         if (empty($this->parser)) {
             if (function_exists('yaml_parse')) {
-                $this->parser = function($yamlString) {
+                $this->parser = function($yamlString)
+                {
                     return \yaml_parse($yamlString);
                 };
             } else if (class_exists('\sfYamlParser')) {
                 $this->parser = array(new \sfYamlParser(), 'parse');
+            } else if (class_exists('\Symfony\Component\Yaml\Parser')) {
+                $this->parser = array(new \Symfony\Component\Yaml\Parser(), 'parse');
             }
         }
         if (!is_callable($this->parser)) {
@@ -76,19 +88,34 @@ class Config
         return $this->parser;
     }
 
+    /**
+     * Set the parser to use when parsing a config file.
+     *
+     * @param object $parser The parser.
+     *
+     * @return \Backend\Modules\Config
+     */
     public function setParser($parser)
     {
         if (!is_callable($parser)) {
             throw new \Exception('Trying to set Uncallable Config Parser');
         }
         $this->parser = $parser;
+        return $this;
     }
 
+    /**
+     * Instansiate the configuration from the specified file.
+     *
+     * @param string $filename The name of the file to parse.
+     *
+     * @return array
+     */
     protected function fromFile($filename)
     {
         $parser = $this->getParser();
-        $this->_values = call_user_func($parser, file_get_contents($filename));
-        return $this->_values !== null;
+        $result = call_user_func($parser, file_get_contents($filename));
+        return is_object($result) ? (array)$result : $result;
     }
 
     /**
@@ -109,7 +136,7 @@ class Config
     /**
     * Get the named config value.
     *
-    * @param string $name The name of the config value. Omit to get the whole
+    * @param string $name    The name of the config value. Omit to get the whole
     * config.
     * @param mixed  $default The default value to return should the value not
     * be found.
@@ -118,7 +145,61 @@ class Config
     */
     public function get($name = false, $default = null)
     {
-        $value = $this->__get($name);
-        return $value === null ? $default : $value;
+        if ($name) {
+            $value = $this->__get($name);
+            return $value === null ? $default : $value;
+        } else {
+            return $this->_values;
+        }
+    }
+
+    /**
+     * Iterator function to get the current element.
+     *
+     * @return mixed
+     */
+    public function current()
+    {
+        return current($this->_values);
+    }
+
+    /**
+     * Iterator function to get the current key.
+     *
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->_values);
+    }
+
+    /**
+     * Iterator function to proceed to the next value.
+     *
+     * @return void
+     */
+    public function next()
+    {
+        next($this->_values);
+    }
+
+    /**
+     * Iterator function to reset the collection.
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+        reset($this->_values);
+    }
+
+    /**
+     * Iterator function to check if there are more element in the collection.
+     *
+     * @return boolean
+     */
+    public function valid()
+    {
+        return key($this->_values) !== false;
     }
 }
