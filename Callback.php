@@ -72,7 +72,15 @@ class Callback implements CallbackInterface
     public function setClass($class)
     {
         if (!is_string($class)) {
-            throw new \Exception('Invalid type for class name, string expected, got ' . gettype($class));
+            throw new \Exception(
+                'Invalid type for class name, string expected, got '
+                . gettype($class)
+            );
+        }
+        if (!class_exists($class, true)) {
+            throw new \Exception(
+                'Trying to set non-existant class in Callback: ' . $class
+            );
         }
         $this->class = $class;
         $this->function = null;
@@ -100,7 +108,10 @@ class Callback implements CallbackInterface
     public function setObject($object)
     {
         if (!is_object($object)) {
-            throw new \Exception('Invalid type for class name, object expected, got ' . gettype($className));
+            throw new \Exception(
+                'Invalid type for class name, object expected, got '
+                . gettype($className)
+            );
         }
         $this->object = $object;
         $this->function = null;
@@ -222,10 +233,14 @@ class Callback implements CallbackInterface
                     return $this->object->{$this->method}($arguments[0]);
                     break;
                 case 2:
-                    return $this->object->{$this->method}($arguments[0], $arguments[1]);
+                    return $this->object->{$this->method}(
+                        $arguments[0], $arguments[1]
+                    );
                     break;
                 case 3:
-                    return $this->object->{$this->method}($arguments[0], $arguments[1], $arguments[2]);
+                    return $this->object->{$this->method}(
+                        $arguments[0], $arguments[1], $arguments[2]
+                    );
                     break;
                 default:
                     $callable = array($this->object, $this->method);
