@@ -113,15 +113,13 @@ class Render implements RenderInterface
      * @param array  $rValues  The values to use to render the template
      *
      * @return string The rendered template
+     * @throws Exception When the template file can't be found
      */
     public function file($template, array $rValues = array())
     {
         $rFile = $this->templateFile($template);
         if (!$rFile) {
-            new ApplicationEvent(
-                'Missing Template: ' . $template, ApplicationEvent::SEVERITY_DEBUG
-            );
-            return false;
+            throw new \Exception('Could not find template file for ' . $template);
         }
 
         //TODO Add Caching
