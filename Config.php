@@ -80,6 +80,8 @@ class Config implements ConfigInterface
                 $this->parser = array(new \sfYamlParser(), 'parse');
             } else if (class_exists('\Symfony\Component\Yaml\Parser')) {
                 $this->parser = array(new \Symfony\Component\Yaml\Parser(), 'parse');
+            } else if (class_exists('\sfYamlParser')) {
+                $this->parser = array(new \sfYamlParser(), 'parse');
             }
         }
         if (!is_callable($this->parser)) {
