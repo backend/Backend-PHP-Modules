@@ -110,7 +110,7 @@ class Callback implements CallbackInterface
         if (!is_object($object)) {
             throw new \Exception(
                 'Invalid type for class name, object expected, got '
-                . gettype($className)
+                . gettype($object)
             );
         }
         $this->object = $object;
@@ -214,7 +214,7 @@ class Callback implements CallbackInterface
      *
      * @return mixed The result of the callback.
      */
-    public function execute(array $arguments = null)
+    public function execute(array $arguments = array())
     {
         $arguments = $arguments ?: $this->arguments;
         $arguments = array_values($arguments);
@@ -292,31 +292,5 @@ class Callback implements CallbackInterface
             return $this->function;
         }
         throw new \Exception('Cannot convert invalid callback to string');
-    }
-
-    /**
-     * Convert a string to a callback.
-     *
-     * This function is the logical inverse of {@see __toString}
-     *
-     * @param string $string    The string representation of the callback.
-     * @param array  $arguments The arguments for the callback.
-     *
-     * @return CallbackInterface
-     */
-    public static function fromString($string, $arguments = array())
-    {
-        $arr = explode('::', $string);
-        $callback = new Callback();
-        if (count($arr) == 1) {
-            $callback->setFunction($arr[0]);
-        } else if (count($arr == 2)) {
-            $callback->setClass($arr[0]);
-            $callback->setMethod($arr[1]);
-        } else {
-            throw new \Exception('Invalid callback string: ' . $string);
-        }
-        $callback->setArguments($arguments);
-        return $callback;
     }
 }
