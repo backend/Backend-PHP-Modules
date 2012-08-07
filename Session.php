@@ -23,42 +23,14 @@ namespace Backend\Modules;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Session
+abstract class Session
 {
     /**
-     * The session ID.
+     * The value bag for the session.
      *
-     * @var mixed
+     * @var ArrayIterator
      */
-    protected $id;
-
-    /**
-     * The class constructor.
-     *
-     * @param string $name The session name.
-     * @param mixed  $id   The session identifier.
-     */
-    public function __construct($name = null, $id = null)
-    {
-        if ($name !== null) {
-            session_name($name);
-        }
-        session_start();
-        if ($id !== null ) {
-            $this->id = $id;
-            session_id($this->id);
-        } else {
-            $this->id = session_id();
-        }
-    }
-
-    /**
-     * The class destructor.
-     */
-    public function __destruct()
-    {
-        session_write_close();
-    }
+    protected $valueBag;
 
     /**
      * Get a session value.
@@ -69,8 +41,7 @@ class Session
      */
     public function get($name)
     {
-        $result = array_key_exists($name, $_SESSION) ? $_SESSION[$name] : null;
-        return $result;
+        return $this->valueBag[$name];
     }
 
     /**
@@ -83,7 +54,7 @@ class Session
      */
     public function set($name, $value)
     {
-        $_SESSION[$name] = $value;
+        $this->valueBag[$name] = $value;
         return $this;
     }
 
@@ -94,9 +65,15 @@ class Session
      *
      * @return \Backend\Modules\Session
      */
-    public function close()
+    abstract public function close();
+
+    public function setValueBag(\ArrayIterator $valueBag)
     {
-        session_destroy();
-        return $this;
+        $this->valueBag = $valueBag;
+    }
+
+    public function getValueBag()
+    {
+        return $this->valueBag;
     }
 }
