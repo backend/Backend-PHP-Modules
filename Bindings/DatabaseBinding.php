@@ -29,17 +29,12 @@ abstract class DatabaseBinding extends Binding
     /**
      * The constructor for the object.
      *
-     * @param array $settings The settings for the Database Connection
+     * @param array $connection The connection settings for the Binding
      */
-    public function __construct(array $settings)
+    public function __construct(array $connection)
     {
-        parent::__construct($settings);
-
-        $config = ServiceLocator::get('backend.Config');
-        $connection = $settings['connection'];
-        $settings   = $config->get('database', $connection);
-        $this->init($settings['connection']);
-
+        parent::__construct($connection);
+        $this->init($connection);
     }
 
     /**

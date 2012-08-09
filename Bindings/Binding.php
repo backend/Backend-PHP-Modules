@@ -45,17 +45,15 @@ abstract class Binding implements BindingInterface
     /**
      * The constructor for the object.
      *
-     * The settings array should contain at least the name of the table to use.
-     *
-     * @param array $settings The settings for the Binding
+     * @param array $connection The connection settings for the Binding
      *
      * @throws \Backend\Modules\Exception
      */
-    public function __construct(array $settings)
+    public function __construct(array $connection)
     {
-        if (empty($settings['class'])) {
+        if (empty($connection['class'])) {
             throw new ModuleException('Missing `class` option for Binding');
         }
-        $this->className = $settings['class'];
+        $this->className = $connection['class'];
     }
 }

@@ -47,17 +47,17 @@ class PDOBinding extends DatabaseBinding
      *
      * The settings array should contain at least the name of the table to use.
      *
-     * @param array $settings The settings for the PDO Connection
+     * @param array $connection The connection settings for the Binding
      */
-    public function __construct(array $settings)
+    public function __construct(array $connection)
     {
-        parent::__construct($settings);
-        if (empty($settings['table'])) {
+        parent::__construct($connection);
+        if (empty($connection['table'])) {
             throw new ModuleException(
                 'Missing Table for Binding ' . get_class($this)
             );
         }
-        $this->table = $settings['table'];
+        $this->table = $connection['table'];
     }
 
     /**
