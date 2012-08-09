@@ -62,12 +62,6 @@ class NativeSession extends \Backend\Modules\Session
         if (session_start() === false) {
             throw new RunTimeException('Could not start Session');
         }
-        if ($id !== null ) {
-            $this->id = $id;
-            session_id($this->id);
-        } else {
-            $this->id = session_id();
-        }
     }
 
     /**

@@ -41,7 +41,7 @@ abstract class Session
      */
     public function get($name)
     {
-        return $this->valueBag[$name];
+        return array_key_exists($name, $this->valueBag) ? $this->valueBag[$name] : null;
     }
 
     /**
