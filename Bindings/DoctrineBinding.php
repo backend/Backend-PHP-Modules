@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules\Bindings;
-use \Backend\Modules\Exception as ModuleException;
+use Backend\Core\Exceptions\ConfigException;
 use Doctrine\ORM\EntityManager;
 /**
  * Binding for Doctrine connections.
@@ -101,7 +101,7 @@ class DoctrineBinding extends DatabaseBinding
      * @param array $data The data to create a new resource.
      *
      * @return \Backend\Interfaces\ModelInterface The created model.
-     * @throws \Backend\Modules\Exception When the resource can't be created.
+     * @throws \RuntimeException When the resource can't be created.
      */
     public function create(array $data)
     {
@@ -119,14 +119,14 @@ class DoctrineBinding extends DatabaseBinding
      * array containing criteria on which to search for the resource.
      *
      * @return \Backend\Interfaces\ModelInterface The identified model.
-     * @throws \Backend\Modules\Exception When the resource can't be found.
+     * @throws \RuntimeException When the resource can't be found.
      */
     public function read($identifier)
     {
         if (is_numeric($identifier)) {
             return $this->em->find($this->entityName, $identifier);
         }
-        throw new \Exception('Unimplemented');
+        throw new \RuntimeException('Unimplemented');
     }
 
     /**
@@ -139,11 +139,11 @@ class DoctrineBinding extends DatabaseBinding
      * Passed by reference.
      *
      * @return boolean If the refresh was successful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be refreshed.
+     * @throws \RuntimeException When the resource can't be refreshed.
      */
     public function refresh(\Backend\Interfaces\ModelInterface &$model)
     {
-        throw new \Exception('Unimplemented');
+        throw new \RuntimeException('Unimplemented');
     }
 
     /**
@@ -156,7 +156,7 @@ class DoctrineBinding extends DatabaseBinding
      * Passed by reference.
      *
      * @return boolean If the update was successful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be updated.
+     * @throws \RuntimeException When the resource can't be updated.
      */
     public function update(\Backend\Interfaces\ModelInterface &$model)
     {
@@ -171,7 +171,7 @@ class DoctrineBinding extends DatabaseBinding
      * @param \Backend\Interfaces\ModelInterface &$model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be deleted.
+     * @throws \RuntimeException When the resource can't be deleted.
      */
     public function delete(\Backend\Interfaces\ModelInterface &$model)
     {

@@ -13,8 +13,8 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules\Bindings;
-use \Backend\Interfaces\BindingInterface;
-use \Backend\Modules\Exception as ModuleException;
+use Backend\Interfaces\BindingInterface;
+use Backend\Core\Exceptions\ConfigException;
 /**
  * Abstract class for Data Bindings
  *
@@ -47,12 +47,12 @@ abstract class Binding implements BindingInterface
      *
      * @param array $connection The connection settings for the Binding
      *
-     * @throws \Backend\Modules\Exception
+     * @throws \Backend\Core\Exceptions\ConfigException
      */
     public function __construct(array $connection)
     {
         if (empty($connection['class'])) {
-            throw new ModuleException('Missing `class` option for Binding');
+            throw new ConfigException('Missing `class` option for Binding');
         }
         $this->className = $connection['class'];
     }

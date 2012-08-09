@@ -13,7 +13,6 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules\Bindings;
-use \Backend\Core\Utilities\ServiceLocator;
 /**
  * Database Connection Binding
  *

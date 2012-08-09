@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules\Bindings;
-use \Backend\Modules\Exception as ModuleException;
+use Backend\Core\Exceptions\ConfigException;
 /**
  * PDO Connection Binding
  *
@@ -53,7 +53,7 @@ class PDOBinding extends DatabaseBinding
     {
         parent::__construct($connection);
         if (empty($connection['table'])) {
-            throw new ModuleException(
+            throw new ConfigException(
                 'Missing Table for Binding ' . get_class($this)
             );
         }
@@ -70,7 +70,7 @@ class PDOBinding extends DatabaseBinding
     protected function init(array $connection)
     {
         if (empty($connection['driver'])) {
-            throw new ModuleException(
+            throw new ConfigException(
                 'Missing Driver for Connection ' . $this->_name
             );
         }
@@ -119,7 +119,7 @@ class PDOBinding extends DatabaseBinding
             return $statement;
         } else {
             $info = $statement->errorInfo();
-            throw new \Exception('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
+            throw new \RuntimeException('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
         }
     }
 
@@ -168,7 +168,7 @@ class PDOBinding extends DatabaseBinding
      * @param array $data The data to create a new resource.
      *
      * @return \Backend\Interfaces\ModelInterface The created model.
-     * @throws \Backend\Modules\Exception When the resource can't be created.
+     * @throws \RuntimeException When the resource can't be created.
      */
     public function create(array $data)
     {
@@ -196,7 +196,7 @@ class PDOBinding extends DatabaseBinding
      * array containing criteria on which to search for the resource.
      *
      * @return \Backend\Interfaces\ModelInterface The identified model.
-     * @throws \Backend\Modules\Exception When the resource can't be found.
+     * @throws \RuntimeException When the resource can't be found.
      */
     public function read($identifier)
     {
@@ -221,7 +221,7 @@ class PDOBinding extends DatabaseBinding
      * Passed by reference.
      *
      * @return boolean If the refresh was successful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be refreshed.
+     * @throws \RuntimeException When the resource can't be refreshed.
      */
     public function refresh(\Backend\Interfaces\ModelInterface &$model)
     {
@@ -238,7 +238,7 @@ class PDOBinding extends DatabaseBinding
      * Passed by reference.
      *
      * @return boolean If the update was successful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be updated.
+     * @throws \RuntimeException When the resource can't be updated.
      */
     public function update(\Backend\Interfaces\ModelInterface &$model)
     {
@@ -265,7 +265,7 @@ class PDOBinding extends DatabaseBinding
      * @param \Backend\Interfaces\ModelInterface &$model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
-     * @throws \Backend\Modules\Exception When the resource can't be deleted.
+     * @throws \RuntimeException When the resource can't be deleted.
      */
     public function delete(\Backend\Interfaces\ModelInterface &$model)
     {

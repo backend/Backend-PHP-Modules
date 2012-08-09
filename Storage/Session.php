@@ -1,6 +1,6 @@
 <?php
 /**
- * File defining \Backend\Modules\Session
+ * File defining \Backend\Modules\Storage\Session
  *
  * PHP Version 5.3
  *
@@ -12,7 +12,7 @@
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-namespace Backend\Modules;
+namespace Backend\Modules\Storage;
 /**
  * A simple Session class.
  *
