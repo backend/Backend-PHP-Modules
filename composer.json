@@ -1,0 +1,10 @@
+{
+    "require": {
+        "php": ">=5.3.0",
+        "backend/interfaces": ">=0.1.2",
+        "backend/core": ">=0.3.0",
+        "backend/base": ">=0.1.0",
+        "doctrine/orm": ">=2.0",
+        "twig/twig": ">=1.9"
+    }
+}

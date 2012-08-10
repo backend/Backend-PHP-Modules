@@ -69,8 +69,6 @@ class DoctrineBinding extends DatabaseBinding
     protected function init(array $connection)
     {
         //Setup Doctrine
-        include_once "Doctrine/ORM/Tools/Setup.php";
-        \Doctrine\ORM\Tools\Setup::registerAutoloadPEAR();
         $isDevMode = (BACKEND_SITE_STATE != 'production');
         $config    = \Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
             array(PROJECT_FOLDER . 'configs/doctrine'),
