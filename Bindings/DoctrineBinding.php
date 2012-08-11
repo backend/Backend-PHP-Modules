@@ -176,4 +176,25 @@ class DoctrineBinding extends DatabaseBinding
         $this->em->remove($model);
         return $this->em->flush();
     }
+
+    /**
+     * Magic function to pass on Doctrine function calls to the binding.
+     *
+     * @param string $method     The name of the method.
+     * @param array  $parameters An array of parameters to pass to the method.
+     *
+     * @return mixed The result of the method call.
+     */
+    public function __call($method, $parameters)
+    {
+        if (is_callable(array($this->em, $method))) {
+            return call_user_func_array(array($this->em, $method), $parameters);
+        } else if (is_callable(array($this->em->getRepository($this->entityName), $method))) {
+            return call_user_func_array(
+                array($this->em->getRepository($this->entityName), $method), $parameters
+            );
+        } else {
+            throw new \RuntimeException('Unknown method ' . get_class($this) . '::' . $method);
+        }
+    }
 }
