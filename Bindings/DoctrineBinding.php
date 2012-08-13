@@ -37,7 +37,7 @@ class DoctrineBinding extends DatabaseBinding
      *
      * @var Doctrine\ORM\EntityManager
      */
-    protected $em;
+    protected static $em;
 
     /**
      * The Doctrine entity name.
@@ -68,14 +68,16 @@ class DoctrineBinding extends DatabaseBinding
      */
     protected function init(array $connection)
     {
-        //Setup Doctrine
-        $isDevMode = (BACKEND_SITE_STATE != 'production');
-        $config    = \Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
-            array(PROJECT_FOLDER . 'configs/doctrine'),
-            $isDevMode
-        );
-        // obtaining the entity manager
-        $this->em = EntityManager::create($connection, $config);
+        if (empty(self::$em)) {
+            //Setup Doctrine
+            $isDevMode = (BACKEND_SITE_STATE != 'production');
+            $config    = \Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
+                array(PROJECT_FOLDER . 'configs/doctrine'),
+                $isDevMode
+            );
+            // obtaining the entity manager
+            self::$em = EntityManager::create($connection, $config);
+        }
     }
 
     /**
@@ -90,7 +92,7 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        return $this->em->getRepository($this->entityName)->findAll();
+        return self::$em->getRepository($this->entityName)->findAll();
     }
 
     /**
@@ -105,8 +107,8 @@ class DoctrineBinding extends DatabaseBinding
     {
         $model = new $this->entityName();
         $model->populate($data);
-        $this->em->persist($model);
-        $this->em->flush();
+        self::$em->persist($model);
+        self::$em->flush();
         return $this->read($model->getId());
     }
 
@@ -122,7 +124,7 @@ class DoctrineBinding extends DatabaseBinding
     public function read($identifier)
     {
         if (is_numeric($identifier)) {
-            return $this->em->find($this->entityName, $identifier);
+            return self::$em->find($this->entityName, $identifier);
         }
         throw new \RuntimeException('Unimplemented');
     }
@@ -158,8 +160,8 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function update(\Backend\Interfaces\ModelInterface &$model)
     {
-        $this->em->persist($model);
-        $this->em->flush();
+        self::$em->persist($model);
+        self::$em->flush();
         return $this->read($model->getId());
     }
 
@@ -173,8 +175,8 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function delete(\Backend\Interfaces\ModelInterface &$model)
     {
-        $this->em->remove($model);
-        return $this->em->flush();
+        self::$em->remove($model);
+        return self::$em->flush();
     }
 
     /**
@@ -187,14 +189,27 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function __call($method, $parameters)
     {
-        if (is_callable(array($this->em, $method))) {
-            return call_user_func_array(array($this->em, $method), $parameters);
-        } else if (is_callable(array($this->em->getRepository($this->entityName), $method))) {
+        if (is_callable(array(self::$em, $method))) {
+            return call_user_func_array(array(self::$em, $method), $parameters);
+        } else if (is_callable(array(self::$em->getRepository($this->entityName), $method))) {
             return call_user_func_array(
-                array($this->em->getRepository($this->entityName), $method), $parameters
+                array(self::$em->getRepository($this->entityName), $method), $parameters
             );
         } else {
             throw new \RuntimeException('Unknown method ' . get_class($this) . '::' . $method);
         }
+    }
+
+    /**
+     * Get the Doctrine Entity Manager
+     *
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public static function getEntityManager()
+    {
+        if (empty(self::$em)) {
+            throw new \RuntimeException('Cannot get Entity Manager');
+        }
+        return self::$em;
     }
 }
