@@ -44,26 +44,19 @@ class Render implements RenderInterface
      */
     public function __construct()
     {
-        $this->templateLocations = array();
-        //Check Application Folder
-        $this->templateLocations = array_merge(
-            $this->templateLocations,
-            glob(SOURCE_FOLDER. '*/*/templates/', \GLOB_ONLYDIR)
-        );
-
-        //Add Project wide templates
-        $this->templateLocations[] = PROJECT_FOLDER . 'templates/';
-
-        //Check Vendor Folder
-        $this->templateLocations = array_merge(
-            $this->templateLocations,
-            glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR)
-        );
-
-        //Check if they exist
-        $this->templateLocations = array_filter(
-            $this->templateLocations, 'file_exists'
-        );
+        $locations = array();
+        $bases = array_filter(array(PROJECT_FOLDER, VENDOR_FOLDER, SOURCE_FOLDER), 'file_exists');
+        foreach ($bases as $base) {
+            $folder = new \RecursiveDirectoryIterator($base);
+            $iter   = new \RecursiveIteratorIterator($folder, \RecursiveIteratorIterator::SELF_FIRST);
+            $regex = implode(DIRECTORY_SEPARATOR, array('.*', 'templates'));
+            $regex = '|' . $regex . '$|i';
+            $regex  = new \RegexIterator($iter, $regex, \RecursiveRegexIterator::GET_MATCH);
+            foreach($regex as $file) {
+                $locations[] = $file[0];
+            }
+        }
+        $this->templateLocations = array_unique($locations);
     }
 
     /**
