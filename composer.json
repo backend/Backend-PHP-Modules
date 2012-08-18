@@ -1,10 +1,28 @@
 {
+    "name": "backend/modules",
+    "type": "library",
+    "description": "Modules tier for the Backend-PHP framework.",
+    "keywords": ["backend", "framework", "mvc", "soa", "modules"],
+    "homepage": "http://backend-php.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jurgens du Toit",
+            "email": "jrgns@backend-php.net",
+            "homepage": "http://jrgns.net",
+            "role": "Designer / Developer"
+        }
+    ],
     "require": {
         "php": ">=5.3.0",
-        "backend/interfaces": ">=0.1.2",
-        "backend/core": ">=0.3.0",
-        "backend/base": ">=0.1.0",
+        "backend/core": ">=0.4",
         "doctrine/orm": ">=2.0",
         "twig/twig": ">=1.9"
-    }
+    },
+    "autoload": {
+        "psr-0": {
+            "Backend\\Modules": ""
+        }
+    },
+    "target-dir": "Backend/Modules"
 }
