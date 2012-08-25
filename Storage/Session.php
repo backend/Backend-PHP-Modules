@@ -46,6 +46,30 @@ abstract class Session implements SessionInterface
     }
 
     /**
+     * Magic function to get a Property.
+     *
+     * @param string $name The name of the property.
+     *
+     * @return mixed The Property if it exists.
+     */
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * Magic function to check if a Property exists.
+     *
+     * @param string $name The name of the property to check.
+     *
+     * @return boolean If the Property exists or not.
+     */
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->valueBag);
+    }
+
+    /**
      * Set a session value.
      *
      * @param string $name  The name of the value to set.
