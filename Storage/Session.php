@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Modules\Storage;
+use Backend\Interfaces\SessionInterface;
 /**
  * A simple Session class.
  *
@@ -23,7 +24,7 @@ namespace Backend\Modules\Storage;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-abstract class Session
+abstract class Session implements SessionInterface
 {
     /**
      * The value bag for the session.
@@ -58,15 +59,6 @@ abstract class Session
         return $this;
     }
 
-    /**
-     * Close the session.
-     *
-     * This will destroy the session and it's associated data.
-     *
-     * @return \Backend\Modules\Session
-     */
-    abstract public function close();
-
     public function setValueBag(\ArrayIterator $valueBag)
     {
         $this->valueBag = $valueBag;
@@ -75,5 +67,30 @@ abstract class Session
     public function getValueBag()
     {
         return $this->valueBag;
+    }
+
+    public function current()
+    {
+        return $this->valueBag->current();
+    }
+
+    public function key()
+    {
+        return $this->valueBag->key();
+    }
+
+    public function next()
+    {
+        return $this->valueBag->next();
+    }
+
+    public function valid()
+    {
+        return $this->valueBag->valid();
+    }
+
+    public function rewind()
+    {
+        return $this->valueBag->rewind();
     }
 }
