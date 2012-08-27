@@ -77,11 +77,13 @@ class DoctrineBinding extends DatabaseBinding
             );
             // Set Various Options
             if (array_key_exists('meta_cache', $connection)) {
-                $config->setMetadataCacheImpl($connection['meta_cache']);
+                $cache = new $connection['meta_cache'];
+                $config->setMetadataCacheImpl($cache);
                 unset($connection['meta_cache']);
             }
             if (array_key_exists('query_cache', $connection)) {
-                $config->setQueryCacheImpl($connection['query_cache']);
+                $cache = new $connection['query_cache'];
+                $config->setQueryCacheImpl($cache);
                 unset($connection['query_cache']);
             }
             if (array_key_exists('proxy_dir', $connection)) {
