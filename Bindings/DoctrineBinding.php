@@ -76,7 +76,7 @@ class DoctrineBinding extends DatabaseBinding
                 $isDevMode
             );
             if (array_key_exists('meta_cache', $connection)) {
-                $config->setMetaCacheImpl($connection['meta_cache']);
+                $config->setMetadataCacheImpl($connection['meta_cache']);
                 unset($connection['meta_cache']);
             }
             if (array_key_exists('query_cache', $connection)) {
