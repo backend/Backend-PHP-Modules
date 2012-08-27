@@ -69,18 +69,21 @@ class DoctrineBinding extends DatabaseBinding
     protected function init(array $connection)
     {
         if (empty(self::$em)) {
-            //Setup Doctrine
+            // Setup Doctrine
             $isDevMode = (BACKEND_SITE_STATE != 'production');
             $config    = \Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
                 array(PROJECT_FOLDER . 'configs/doctrine'),
                 $isDevMode
             );
+            // Set Various Options
             if (array_key_exists('meta_cache', $connection)) {
-                $config->setMetadataCacheImpl($connection['meta_cache']);
+                $cache = new $connection['meta_cache'];
+                $config->setMetadataCacheImpl($cache);
                 unset($connection['meta_cache']);
             }
             if (array_key_exists('query_cache', $connection)) {
-                $config->setQueryCacheImpl($connection['query_cache']);
+                $cache = new $connection['query_cache'];
+                $config->setQueryCacheImpl($cache);
                 unset($connection['query_cache']);
             }
             if (array_key_exists('proxy_dir', $connection)) {
@@ -91,6 +94,7 @@ class DoctrineBinding extends DatabaseBinding
                 $config->setProxyNamespace($connection['proxy_namespace']);
                 unset($connection['proxy_namespace']);
             }
+
             // obtaining the entity manager
             self::$em = EntityManager::create($connection, $config);
         }
