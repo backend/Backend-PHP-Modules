@@ -71,7 +71,7 @@ class PDOBinding extends DatabaseBinding
     {
         if (empty($connection['driver'])) {
             throw new ConfigException(
-                'Missing Driver for Connection ' . $this->_name
+                'Missing Driver for Binding for ' . $this->className
             );
         }
         $driver = $connection['driver'];
@@ -117,8 +117,11 @@ class PDOBinding extends DatabaseBinding
     {
         if ($statement && $statement->execute($parameters)) {
             return $statement;
-        } else {
+        } else if ($statement) {
             $info = $statement->errorInfo();
+            throw new \RuntimeException('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
+        } else {
+            $info = $this->connection->errorInfo();
             throw new \RuntimeException('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
         }
     }
@@ -133,9 +136,14 @@ class PDOBinding extends DatabaseBinding
      */
     public function executeQuery($query, array $parameters = array())
     {
-        return $this->executeStatement(
-            $this->connection->prepare($query), $parameters
-        );
+        $statement = $this->connection->prepare($query);
+        if ($statement === false) {
+            $info = $this->connection->errorInfo();
+            throw new \RuntimeException(
+                'Query Error: ' . $info[2] . ' (' . $info[0] . ') - Query: ' . $query
+            );
+        }
+        return $this->executeStatement($statement, $parameters);
     }
 
     /**
@@ -150,7 +158,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        $query = 'SELECT * FROM ' . $this->table;
+        $query = 'SELECT * FROM `' . $this->table . '`';
         if (array_key_exists('order', $options)) {
             $query .= ' ORDER BY ' . $options['order'];
         }
@@ -172,7 +180,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function create(array $data)
     {
-        $query  = 'INSERT INTO ' . $this->table;
+        $query  = 'INSERT INTO `' . $this->table . '`';
         $params = array();
         $values = array();
         $names  = array();
@@ -181,7 +189,7 @@ class PDOBinding extends DatabaseBinding
             $names[]  = $name;
             $values[] = ':' . $name;
         }
-        $query .= ' (' . implode(', ', $names) . ') VALUES ('
+        $query .= ' (`' . implode('`, `', $names) . '`) VALUES ('
             . implode(', ', $values) . ')';
         if ($this->executeQuery($query, $params)) {
             return $this->read($this->connection->lastInsertId());
@@ -200,7 +208,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function read($identifier)
     {
-        $query = 'SELECT * FROM ' . $this->table . ' WHERE `id` = :id';
+        $query = 'SELECT * FROM `' . $this->table . '` WHERE `id` = :id';
         $stmt = $this->executeQuery($query, array(':id' => $identifier));
         if ($stmt) {
             $stmt->setFetchMode(
@@ -244,14 +252,14 @@ class PDOBinding extends DatabaseBinding
     {
         $data       = $model->getProperties();
         $identifier = $model->getId();
-        $query  = 'UPDATE ' . $this->table . ' SET ';
+        $query  = 'UPDATE `' . $this->table . '` SET ';
         $params = array();
         $values = array();
         foreach ($data as $name => $value) {
             $params[':' . $name] = $value;
             $values[] = $name . ' = :' . $name;
         }
-        $query .= implode(', ', $values) . ' WHERE id = :identifier';
+        $query .= implode(', ', $values) . ' WHERE `id` = :identifier';
         $params[':identifier'] = $identifier;
         if ($this->executeQuery($query, $params)) {
             return $this->read($identifier);
@@ -270,9 +278,27 @@ class PDOBinding extends DatabaseBinding
     public function delete(\Backend\Interfaces\ModelInterface &$model)
     {
         $identifier = $model->getId();
-        $query = 'DELETE FROM ' . $this->table . ' WHERE `id` = :id';
+        $query = 'DELETE FROM `' . $this->table . '` WHERE `id` = :id';
         $result = (bool)$this->executeQuery($query, array(':id' => $identifier));
         unset($model);
         return $result;
     }
+
+    /**
+     * Magic function to pass on PDO function calls to the binding.
+     *
+     * @param string $method     The name of the method.
+     * @param array  $parameters An array of parameters to pass to the method.
+     *
+     * @return mixed The result of the method call.
+     */
+    public function __call($method, $parameters)
+    {
+        if (is_callable(array($this->connection, $method))) {
+            return call_user_func_array(array($this->connection, $method), $parameters);
+        } else {
+            throw new \RuntimeException('Unknown method ' . get_class($this) . '::' . $method);
+        }
+    }
+
 }
