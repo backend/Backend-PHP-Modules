@@ -95,6 +95,8 @@ class DoctrineBinding extends DatabaseBinding
                 unset($connection['proxy_namespace']);
             }
 
+            $config->setSQLLogger(new \Doctrine\DBAL\Logging\DebugStack);
+
             // obtaining the entity manager
             self::$em = EntityManager::create($connection, $config);
         }
@@ -112,7 +114,11 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        return self::$em->getRepository($this->entityName)->findAll();
+        if (empty($conditions)) {
+            return self::$em->getRepository($this->entityName)->findAll();
+        } else {
+            return self::$em->getRepository($this->entityName)->findBy($conditions);
+        }
     }
 
     /**
