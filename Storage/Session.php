@@ -83,6 +83,19 @@ abstract class Session implements SessionInterface
         return $this;
     }
 
+    /**
+     * Magic function to set a Property.
+     *
+     * @param string $name  The name of the value to set.
+     * @param mixed  $value The value to set.
+     *
+     * @return \Backend\Modules\Session
+     */
+    public function __set($name, $value)
+    {
+        return $this->set($name, $value);
+    }
+
     public function setValueBag(\ArrayIterator $valueBag)
     {
         $this->valueBag = $valueBag;
