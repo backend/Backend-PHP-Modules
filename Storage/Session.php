@@ -46,6 +46,21 @@ abstract class Session implements SessionInterface
     }
 
     /**
+     * Remove a session value.
+     *
+     * @param string $name  The name of the value to remove.
+     *
+     * @return \Backend\Modules\Session
+     */
+    public function remove($name)
+    {
+        if (array_key_exists($name, $this->valueBag)) {
+            unset($this->valueBag[$name]);
+        }
+        return $this;
+    }
+
+    /**
      * Magic function to get a Property.
      *
      * @param string $name The name of the property.
@@ -96,36 +111,74 @@ abstract class Session implements SessionInterface
         return $this->set($name, $value);
     }
 
+    /**
+     * Set the value bag for the session.
+     *
+     * @param \ArrayIterator $valueBag The value bag.
+     * 
+     * @return \Backend\Modules\Session
+     */
     public function setValueBag(\ArrayIterator $valueBag)
     {
         $this->valueBag = $valueBag;
+        return $this;
     }
 
+    /**
+     * Get the value bag for the session.
+     * 
+     * @return \ArrayIterator The session's value bag.
+     */
     public function getValueBag()
     {
         return $this->valueBag;
     }
 
+    /**
+     * Iterator function. Return the current value.
+     * 
+     * @return mixed The current iterator value.
+     */
     public function current()
     {
         return $this->valueBag->current();
     }
 
+    /**
+     * Iterator function. Return the key of the current value.
+     * 
+     * @return mixed The key of the current iterator value.
+     */
     public function key()
     {
         return $this->valueBag->key();
     }
 
+    /**
+     * Iterator function. Return the next value and advance the iterator pointer.
+     * 
+     * @return mixed The next iterator value.
+     */
     public function next()
     {
         return $this->valueBag->next();
     }
 
+    /**
+     * Iterator function. Check if the current positions is valid.
+     * 
+     * @return boolean If the current position is valid.
+     */
     public function valid()
     {
         return $this->valueBag->valid();
     }
 
+    /**
+     * Iterator function. Rewind the iterator.
+     * 
+     * @return void
+     */
     public function rewind()
     {
         return $this->valueBag->rewind();
