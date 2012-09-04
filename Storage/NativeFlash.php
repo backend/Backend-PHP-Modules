@@ -47,7 +47,9 @@ class NativeFlash extends NativeSession
         if ($this->isOpen() === false) {
             throw new \RuntimeException('No Session to store flash values in');
         }
-        $_SESSION[self::BAG_NAME] = array();
+        if (array_key_exists(self::BAG_NAME, $_SESSION) === false) {
+            $_SESSION[self::BAG_NAME] = array();
+        }
         $this->valueBag = &$_SESSION[self::BAG_NAME];
     }
 
