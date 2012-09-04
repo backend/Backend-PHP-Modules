@@ -47,6 +47,16 @@ class NativeSession extends Session
         }
     }
 
+    /**
+     * Open the session.
+     * 
+     * @param string $name The Session Name.
+     * 
+     * @return void
+     * @throws RuntimeException If a session already exists.
+     * @throws RuntimeException If headers have already been sent.
+     * @throws RuntimeException If the session cannot be started.
+     */
     public function open($name)
     {
         if ($this->isOpen()) {
@@ -69,6 +79,7 @@ class NativeSession extends Session
      * @param string $name The name of the value to get.
      *
      * @return mixed The value.
+     * @throws \RuntimeException If the session isn't open.
      */
     public function get($name)
     {
@@ -85,6 +96,7 @@ class NativeSession extends Session
      * @param mixed  $value The value to set.
      *
      * @return \Backend\Modules\Session
+     * @throws \RuntimeException If the session isn't open.
      */
     public function set($name, $value)
     {
@@ -100,6 +112,8 @@ class NativeSession extends Session
      * This will destroy the session and it's associated data.
      *
      * @return \Backend\Modules\Session
+     * @throws \RuntimeException If the session isn't open.
+     * @throws \RuntimeException If the session couldn't be closed.
      */
     public function close()
     {
