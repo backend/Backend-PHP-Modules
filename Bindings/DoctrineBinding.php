@@ -115,9 +115,9 @@ class DoctrineBinding extends DatabaseBinding
     public function find(array $conditions = array(), array $options = array())
     {
         if (empty($conditions)) {
-            return self::$em->getRepository($this->entityName)->findAll();
+            return $this->getRepository()->findAll();
         } else {
-            return self::$em->getRepository($this->entityName)->findBy($conditions);
+            return $this->getRepository()->findBy($conditions);
         }
     }
 
@@ -150,7 +150,7 @@ class DoctrineBinding extends DatabaseBinding
     public function read($identifier)
     {
         if (is_numeric($identifier)) {
-            return self::$em->find($this->entityName, $identifier);
+            return $this->getRepository()->find($identifier);
         }
         throw new \RuntimeException('Unimplemented');
     }
@@ -203,6 +203,18 @@ class DoctrineBinding extends DatabaseBinding
     {
         self::$em->remove($model);
         return self::$em->flush();
+    }
+
+    /**
+     * Get the Entity Repository.
+     *
+     * This is a wrapper for the Doctrine\ORM\EntityManager::getRepository method.
+     *
+     * @return Doctrine\ORM\EntityRepository
+     */
+    public function getRepository()
+    {
+        return self::$em->getRepository($this->entityName);
     }
 
     /**
