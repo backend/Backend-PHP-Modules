@@ -61,7 +61,7 @@ class Upload
         return $this->name;
     }
 
-    public function upload($location)
+    public function uploadFile($location)
     {
         if (substr($location, -1) !== DIRECTORY_SEPARATOR) {
             $location .= DIRECTORY_SEPARATOR;
