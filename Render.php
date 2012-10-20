@@ -45,7 +45,7 @@ class Render implements RenderInterface
     public function __construct()
     {
         $locations = array();
-        $bases = array_filter(array(PROJECT_FOLDER, VENDOR_FOLDER, SOURCE_FOLDER), 'file_exists');
+        $bases = array_filter(array(VENDOR_FOLDER, SOURCE_FOLDER, PROJECT_FOLDER), 'file_exists');
         foreach ($bases as $base) {
             $folder = new \RecursiveDirectoryIterator($base);
             $iter   = new \RecursiveIteratorIterator($folder, \RecursiveIteratorIterator::SELF_FIRST);
@@ -56,7 +56,7 @@ class Render implements RenderInterface
                 $locations[] = $file[0];
             }
         }
-        $this->templateLocations = array_unique($locations);
+        $this->templateLocations = array_reverse(array_unique($locations));
     }
 
     /**
