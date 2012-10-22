@@ -233,7 +233,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function refresh(\Backend\Interfaces\ModelInterface &$model)
     {
-        throw new ModuleException('Unimplemented');
+        throw new ModuleException(__CLASS__ . '::refresh() Unimplemented');
     }
 
     /**

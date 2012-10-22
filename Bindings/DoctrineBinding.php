@@ -152,7 +152,7 @@ class DoctrineBinding extends DatabaseBinding
         if (is_numeric($identifier)) {
             return $this->getRepository()->find($identifier);
         }
-        throw new \RuntimeException('Unimplemented');
+        throw new \RuntimeException(__CLAS__ . '::read(non numerical) Unimplemented');
     }
 
     /**
@@ -169,7 +169,7 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function refresh(\Backend\Interfaces\ModelInterface &$model)
     {
-        throw new \RuntimeException('Unimplemented');
+        throw new \RuntimeException(__CLASS__ . '::refresh() Unimplemented');
     }
 
     /**
