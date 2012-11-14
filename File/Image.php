@@ -2,8 +2,6 @@
 namespace Backend\Modules\File;
 class Image
 {
-    protected $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
-
     protected $path;
     protected $name;
     protected $type;
@@ -22,6 +20,9 @@ class Image
     protected function validate()
     {
         list($width, $height, $type) = getimagesize($this->path);
+        if (empty($type)) {
+            throw new \RuntimeException("Invalid File Type: Not an image");
+        }
         if (empty($width) || empty($height)) {
             throw new \RuntimeException("Could not determine image dimensions");
         }

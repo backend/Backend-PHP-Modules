@@ -2,7 +2,7 @@
 namespace Backend\Modules\File;
 class Upload
 {
-    protected $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
+    protected $allowedTypes = false;
 
     protected $overwriteExisting = true;
 
@@ -21,14 +21,22 @@ class Upload
             throw new \RuntimeException('File Upload Error: ' . $error);
         }
 
-        $this->checkExtension();
         $this->validate();
+
+        $this->checkExtension();
     }
 
     protected function validate()
     {
         if (empty($this->name)) {
             throw new \RuntimeException('File Upload Error: Missing File Name');
+        }
+
+        if ($this->allowedTypes) {
+            $regex = '/^.*\/(' . implode('|', $this->allowedTypes) . ')$/';
+            if (preg_match($regex, $this->type, $matches) !== 1) {
+                throw new \RuntimeException('File Upload Error: Invalid File Type', 400);
+            }
         }
 
         // TODO Check file sizes
@@ -45,17 +53,17 @@ class Upload
 
     protected function checkExtension()
     {
-        $regex = '/^.*\/(' . implode('|', $this->allowedTypes) . ')$/';
-        if (preg_match($regex, $this->type, $matches) !== 1) {
-            throw new \RuntimeException('File Upload Error: Invalid File Type', 400);
-        }
-        $ext = explode('.', $this->name);
-        if (count($ext) === 1) {
-            $this->name .= '.'.$matches[1];
-        } else {
-            $ext = end($ext);
-            if ($ext !== $matches[1]) {
-                $this->name = preg_replace('/' . $ext . '$/', $matches[1], $this->name);
+        $regex = '/^.*\/(.*)$/';
+        preg_match($regex, $this->type, $matches);
+        if (empty($matches[1]) === false) {
+            $ext = explode('.', $this->name);
+            if (count($ext) === 1) {
+                $this->name .= '.'.$matches[1];
+            } else {
+                $ext = end($ext);
+                if ($ext !== $matches[1]) {
+                    $this->name = preg_replace('/' . $ext . '$/', $matches[1], $this->name);
+                }
             }
         }
         return $this->name;
