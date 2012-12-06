@@ -117,7 +117,10 @@ class DoctrineBinding extends DatabaseBinding
         if (empty($conditions)) {
             return $this->getRepository()->findAll();
         } else {
-            return $this->getRepository()->findBy($conditions);
+            $order  = array_key_exists('order', $options)  ? $options['order']  : null;
+            $limit  = array_key_exists('limit', $options)  ? $options['limit']  : null;
+            $offset = array_key_exists('offset', $options) ? $options['offset'] : null;
+            return $this->getRepository()->findBy($conditions, $order, $limit, $offset);
         }
     }
 
