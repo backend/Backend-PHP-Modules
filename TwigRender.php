@@ -52,6 +52,24 @@ class TwigRender
     }
 
     /**
+     * Magic function to pass on Twig function calls.
+     *
+     * @param string $method     The name of the method.
+     * @param array  $parameters An array of parameters to pass to the method.
+     *
+     * @return mixed The result of the method call.
+     */
+    public function __call($method, $parameters)
+    {
+        if (method_exists($this->twig, $method)) {
+            return call_user_func_array(array($this->twig, $method), $parameters);
+        }
+        throw new \ErrorException(
+            'Call to undefined method ' . get_class($this) . '::' . $method
+        );
+    }
+
+    /**
      * Render the specified template, using the given values
      *
      * @param string $template The template to render
